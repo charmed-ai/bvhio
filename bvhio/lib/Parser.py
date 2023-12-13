@@ -15,7 +15,10 @@ def parseLine(file: TextIOWrapper, lineNumber: int) -> tuple[int, list[str], tup
     lineNumber += 1
     line = file.readline()
     tokens = line.strip().split()
+    if len(tokens) <= 0:
+        tokens = ['ERROR']
     debugInfo = (file, lineNumber, len(line) - len(line.lstrip()) + len(tokens[0]), line)
+
     return (lineNumber, tokens, debugInfo)
 
 
@@ -171,7 +174,10 @@ def _deserializeOffset(file: TextIOWrapper, line: int) -> glm.vec3:
     if not isinstance(tokens, list) or len(tokens[1:]) != 3:
         raise SyntaxError('Offset must be a 3-part tuple', debugInfo)
     try:
-        return glm.vec3(list(map(float, tokens[1:])))
+        v = glm.vec3(list(map(float, tokens[1:])))
+        if(glm.length2(v)<=0.0):
+            v.z += 1e-15
+        return v
     except ValueError:
         raise SyntaxError('Offset must be numerics only', debugInfo)
 
